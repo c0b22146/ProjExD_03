@@ -177,6 +177,9 @@ class Explosion:
 
 
 class Score:
+    """
+    スコアに関するクラス
+    """
     def __init__(self):
         self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
         self.img = self.font.render(f"スコア:{0}", 0, (0,0,255))
@@ -241,15 +244,21 @@ def main():
         bird.update(key_lst, screen)
 
         bombs = [bomb for bomb in bombs if bomb is not None]
-        for bomb in bombs:
+        for bomb in bombs:                                     # 爆弾の処理
              bomb.update(screen)
 
+        for k, beam in enumerate(beams):
+            if beams[k] is not None:
+                if beam.rct.left < 0 or WIDTH < beam.rct.right:
+                    beams[k] = None                               # ビームの処理
+                if beam.rct.top < 0 or HEIGHT < beam.rct.bottom:
+                    beams[k] = None
         beams = [beam for beam in beams if beam is not None]
         for beam in beams:
             beam.update(screen)
 
         explos = [explo for explo in explos if explo is not None] 
-        for explo in explos:
+        for explo in explos:                                        # 爆発の処理
             explo.update(screen)
             
         score.update(screen,score_point)
