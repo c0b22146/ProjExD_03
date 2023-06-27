@@ -1,6 +1,7 @@
 import random
 import sys
 import time
+import math
 
 import pygame as pg
 
@@ -57,6 +58,7 @@ class Bird:
         self.img = self.imgs[(+5,0)]
         self.rct = self.img.get_rect()
         self.rct.center = xy
+        self.dire = (+5,0)
 
 
     def change_img(self, num: int, screen: pg.Surface):
@@ -84,6 +86,7 @@ class Bird:
             self.rct.move_ip(-sum_mv[0], -sum_mv[1])
         if sum_mv != [0,0]:
                 self.img = self.imgs[tuple(sum_mv)]
+                self.dire = tuple(sum_mv)
         screen.blit(self.img, self.rct)
 
 
@@ -127,11 +130,17 @@ class Beam:
         引数に基づきビームSurfaceを生成する
         引数 bird:ビームを放つこうかとん
         """
-        self.img = pg.transform.rotozoom(pg.image.load(f"ex03/fig/beam.png"), 0, 2.0)
+        self.vx = bird.dire[0] 
+        self.vy = bird.dire[1]
+        self.atan = math.atan2(-self.vy, self.vx)
+        self.degrees = math.degrees(self.atan)
+        self.img = pg.transform.rotozoom(pg.image.load(f"ex03/fig/beam.png"), self.degrees, 2.0)
         self.rct = self.img.get_rect()
-        self.rct.left = bird.rct.right
-        self.rct.centery = bird.rct.centery
-        self.vx, self.vy = +5, 0
+        self.rct.centerx = bird.rct.centerx + (bird.rct[0] * self.vx / 50)
+        self.rct.centery = bird.rct.centery + (bird.rct[1] * self.vy / 50)
+         
+
+        
 
     def update(self, screen: pg.Surface):
         """
