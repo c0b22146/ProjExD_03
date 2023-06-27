@@ -197,6 +197,7 @@ def main():
     explo = None
     explos = []
     beam = None
+    beams = []
     score_point = 0
     score = Score()
 
@@ -208,6 +209,7 @@ def main():
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 beam = Beam(bird) # ビームクラスのインスタンスを生成する
+                beams.append(beam)
 
         screen.blit(bg_img, [0, 0])
         
@@ -220,15 +222,16 @@ def main():
                 return
             
         for i, bomb in enumerate(bombs):
-            if beam is not None:
-                if bomb.rct.colliderect(beam.rct):
-                    bombs[i] = None
-                    beam = None
-                    bird.change_img(6, screen)
-                    explo = Explosion(bomb)
-                    explos.append(explo)
-                    score_point += 1
-                    pg.display.update()
+            for j, beam in enumerate(beams):
+                if bomb is not None and beam is not None:
+                    if bomb.rct.colliderect(beam.rct):
+                        bombs[i] = None
+                        beams[j] = None
+                        bird.change_img(6, screen)
+                        explo = Explosion(bomb)
+                        explos.append(explo)
+                        score_point += 1
+                        pg.display.update()
         
         for i, explo in enumerate(explos):
             if explo.life <= 0:
@@ -241,7 +244,8 @@ def main():
         for bomb in bombs:
              bomb.update(screen)
 
-        if beam is not None:
+        beams = [beam for beam in beams if beam is not None]
+        for beam in beams:
             beam.update(screen)
 
         explos = [explo for explo in explos if explo is not None] 
