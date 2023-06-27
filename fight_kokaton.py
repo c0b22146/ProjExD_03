@@ -40,16 +40,23 @@ class Bird:
         引数1 num：こうかとん画像ファイル名の番号
         引数2 xy：こうかとん画像の位置座標タプル
         """
-        self.img = pg.transform.flip(  # 左右反転
-            pg.transform.rotozoom(  # 2倍に拡大
-                pg.image.load(f"ex03/fig/{num}.png"), 
-                0, 
-                2.0), 
-            True, 
-            False
-        )
+        img0 = pg.transform.rotozoom(pg.image.load(f"ex03/fig/{num}.png"), 0, 2.0)
+        img = pg.transform.flip(img0,True,False)
+        self.imgs = {
+            (+5, 0) : img,
+            (+5, -5) :pg.transform.rotozoom(img, 45, 1.0),
+            (0, -5) : pg.transform.rotozoom(img, 90, 1.0),
+            (-5, -5) : pg.transform.rotozoom(img0, -45, 1.0),
+            (-5, 0) : img0,
+            (-5, +5) : pg.transform.rotozoom(img0, 45, 1.0),
+            (0, +5) : pg.transform.rotozoom(img, -90, 1.0),
+            (+5, +5) : pg.transform.rotozoom(img, -45, 1.0),
+        }
+
+        self.img = self.imgs[(+5,0)]
         self.rct = self.img.get_rect()
         self.rct.center = xy
+
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -71,6 +78,8 @@ class Bird:
             if key_lst[k]:
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
+                if sum_mv != [0,0]:
+                    self.img = self.imgs[tuple(sum_mv)]
         self.rct.move_ip(sum_mv)
         if check_bound(self.rct) != (True, True):
             self.rct.move_ip(-sum_mv[0], -sum_mv[1])
