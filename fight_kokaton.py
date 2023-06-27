@@ -142,6 +142,31 @@ class Beam:
         screen.blit(self.img, self.rct)
 
 
+class Explosion:
+    """
+    爆発に関するクラス
+    """
+    def __init__(self, bomb:Bomb):
+        self.imgs = [ pg.transform.flip(pg.image.load(f"ex03/fig/explosion.gif"), True, True),
+                 pg.transform.flip(pg.image.load(f"ex03/fig/explosion.gif"), True, False),
+                  pg.transform.flip(pg.image.load(f"ex03/fig/explosion.gif"), False, True),
+                   pg.transform.flip(pg.image.load(f"ex03/fig/explosion.gif"), False, False)]
+        self.img = self.imgs[0]
+        self.rct = self.img.get_rect()
+        self.rct.centerx = bomb.rct.centerx
+        self.rct.centery = bomb.rct.centery
+        self.life = 12
+
+    def update(self, screen: pg.Surface):
+        """
+        爆発処理
+        """
+        self.life -= 1
+        if self.life != 0:
+            self.img = self.imgs[self.life%4]
+        screen.blit(self.img, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -149,6 +174,8 @@ def main():
     bird = Bird(3, (900, 400))
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for i in range(NUM_OF_BOMBS)]
+    explo = None
+    explos = []
     beam = None
 
     clock = pg.time.Clock()
@@ -176,15 +203,28 @@ def main():
                     bombs[i] = None
                     beam = None
                     bird.change_img(6, screen)
+                    explo = Explosion(bomb)
+                    explos.append(explo)
                     pg.display.update()
+        
+        for i, explo in enumerate(explos):
+            if explo.life <= 0:
+                explos[i] = None
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
+
         bombs = [bomb for bomb in bombs if bomb is not None]
         for bomb in bombs:
              bomb.update(screen)
+
         if beam is not None:
             beam.update(screen)
+
+        explos = [explo for explo in explos if explo is not None] 
+        for explo in explos:
+            explo.update(screen)
+            
         pg.display.update()
         tmr += 1
         clock.tick(50)
